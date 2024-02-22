@@ -14,7 +14,6 @@ const lightbox = new SimpleLightbox('.gallery a', {
 
 const toggleLoader = (state) => {
   const loader = document.querySelector('.loader');
-  console.log(state)
 
   if (!loader) {
     return;
@@ -102,5 +101,6 @@ export const initForm = () => {
       fetchImages(question);
     }, 500);
 
+    input.value = '';
   });
 }

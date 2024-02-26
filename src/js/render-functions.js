@@ -15,16 +15,12 @@ const lightbox = new SimpleLightbox('.gallery a', {
 const windowScrollHandler = () => {
   const itemHeight = document.querySelector('.gallery__list').firstElementChild.getBoundingClientRect().height;
   let posTop = window.scrollY;
-  console.log(posTop)
 
-  setTimeout(() => {
-    window.scrollBy({
-      top: itemHeight * 2 + 48,
-      left: 0,
-      behavior: "smooth",
-    });
-  }, 100);
-
+  window.scrollBy({
+    top: itemHeight * 2 + 48,
+    left: 0,
+    behavior: "smooth",
+  });
 }
 
 const initPaginationHandler = (state, request, page) => {
@@ -39,8 +35,8 @@ const initPaginationHandler = (state, request, page) => {
       page += 1;
       trigger.remove();
       toggleLoader(true);
-      setTimeout(() => {
-        fetchImages(request, page);
+      setTimeout(async () => {
+        await fetchImages(request, page);
         windowScrollHandler();
       }, 500);
     });
@@ -59,6 +55,8 @@ const initGalleryItems = (total, request, page) => {
   const items = [...document.querySelectorAll('.gallery__item')];
   const trigger = document.querySelector('.gallery__action');
   const parent = document.querySelector('.gallery');
+
+  console.log(total)
 
   if (!items.length || trigger) {
     return;
@@ -108,7 +106,7 @@ const clearGallery = () => {
   message.remove();
 }
 
-export const markupGallery = ({ hits, total }, request, page) => {
+export const markupGallery = ({ hits, totalHits }, request, page) => {
   const gallery = document.querySelector('.gallery__list');
 
   if (!gallery) {
@@ -154,7 +152,7 @@ export const markupGallery = ({ hits, total }, request, page) => {
   toggleLoader(false);
   gallery.insertAdjacentHTML('beforeend', galleryItems.join(''));
   lightbox.refresh();
-  initGalleryItems(total, request, page);
+  initGalleryItems(totalHits, request, page);
 }
 
 export const initForm = () => {
@@ -176,10 +174,10 @@ export const initForm = () => {
 
     clearGallery();
     toggleLoader(true);
+    initPaginationHandler(false, request);
 
     setTimeout(() => {
       fetchImages(request, 1);
-      initPaginationHandler(false, request);
     }, 500);
 
     input.value = '';

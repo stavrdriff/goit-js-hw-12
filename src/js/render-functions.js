@@ -12,28 +12,104 @@ const lightbox = new SimpleLightbox('.gallery a', {
   ],
 });
 
-const toggleLoader = (state) => {
-  const loader = document.querySelector('.loader');
+const windowScrollHandler = () => {
+  const itemHeight = document.querySelector('.gallery__list').firstElementChild.getBoundingClientRect().height;
+  let posTop = window.scrollY;
+  console.log(posTop)
 
-  if (!loader) {
+  setTimeout(() => {
+    window.scrollBy({
+      top: itemHeight * 2 + 48,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, 100);
+
+}
+
+const initPaginationHandler = (state, request, page) => {
+  const parent = document.querySelector('.gallery');
+
+  if (state) {
+    parent.insertAdjacentHTML('beforeend', '<button class="gallery__action" type="button">Load more</button>');
+
+    const trigger = parent.querySelector('.gallery__action');
+
+    trigger.addEventListener('click', () => {
+      page += 1;
+      trigger.remove();
+      toggleLoader(true);
+      setTimeout(() => {
+        fetchImages(request, page);
+        windowScrollHandler();
+      }, 500);
+    });
+  } else {
+    const trigger = parent.querySelector('.gallery__action');
+
+    if (!trigger) {
+      return;
+    }
+
+    trigger.remove();
+  }
+}
+
+const initGalleryItems = (total, request, page) => {
+  const items = [...document.querySelectorAll('.gallery__item')];
+  const trigger = document.querySelector('.gallery__action');
+  const parent = document.querySelector('.gallery');
+
+  if (!items.length || trigger) {
     return;
   }
 
-  state ? loader.classList.add('is-active') : loader.classList.remove('is-active');
+  if (items.length < total) {
+    initPaginationHandler(true, request, page)
+  }
+  else {
+    initPaginationHandler(false);
+    parent.insertAdjacentHTML('beforeend', `<p class="gallery__meassage">We're sorry, but you've reached the end of search results.</p>`);
+  }
+}
+
+const toggleLoader = (state) => {
+  const parent = document.querySelector('.gallery');
+
+  if (state) {
+    parent.insertAdjacentHTML('beforeend', '<div class="loader"></div>');
+  }
+  else {
+    const loader = parent.querySelector('.loader');
+
+    if (!loader) {
+      return;
+    }
+
+    loader.remove();
+  }
 }
 
 const clearGallery = () => {
-  const gallery = document.querySelector('.gallery');
+  const gallery = document.querySelector('.gallery__list');
 
   if (!gallery) {
     return;
   }
 
   gallery.innerHTML = '';
+
+  const message = document.querySelector('.gallery__meassage');
+
+  if (!message) {
+    return;
+  }
+
+  message.remove();
 }
 
-export const markupGallery = ({ hits }) => {
-  const gallery = document.querySelector('.gallery');
+export const markupGallery = ({ hits, total }, request, page) => {
+  const gallery = document.querySelector('.gallery__list');
 
   if (!gallery) {
     return;
@@ -57,7 +133,7 @@ export const markupGallery = ({ hits }) => {
 
   const galleryItems = [];
 
-  hits.slice(0, 9).map((item) => {
+  hits.map((item) => {
     const markup = `<li class="gallery__item">
       <div class="gallery-card">
         <a class="gallery-card__link" href="${item.largeImageURL}" aria-label="Open image in modal">
@@ -76,10 +152,9 @@ export const markupGallery = ({ hits }) => {
   });
 
   toggleLoader(false);
-
   gallery.insertAdjacentHTML('beforeend', galleryItems.join(''));
-
   lightbox.refresh();
+  initGalleryItems(total, request, page);
 }
 
 export const initForm = () => {
@@ -92,13 +167,19 @@ export const initForm = () => {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const question = input.value.split(' ').join('+');
+
+    if (!input.value.length) {
+      return;
+    }
+
+    const request = input.value.trim().split(' ').join('+');
 
     clearGallery();
     toggleLoader(true);
 
     setTimeout(() => {
-      fetchImages(question);
+      fetchImages(request, 1);
+      initPaginationHandler(false, request);
     }, 500);
 
     input.value = '';

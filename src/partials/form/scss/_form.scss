@@ -1,12 +1,6 @@
-.timer-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
 .form {
   margin: 0 auto;
-  padding-block: 1rem;
+  padding-block: 2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -46,7 +40,10 @@
 
     --border-width-input: 0;
 
+    display: inline-flex;
+    align-items: center;
     padding: var(--padding-input);
+    width: max-content;
     font-family: var(--font-family-primary);
     font-size: var(--font-size-primary);
     line-height:var(--line-height-primary);
@@ -62,24 +59,6 @@
       --color-background-button: var(--color-background-button-hover);
     }
   }
-}
-
-.timer {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.value {
-  display: block;
-  font-size: 2.5rem;
-  line-height: 1.2;
-  text-align: center;
-}
-
-.label {
-  display: block;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 .popup-message {

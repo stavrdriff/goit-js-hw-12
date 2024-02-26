@@ -1,25 +1,25 @@
 import iziToast from "izitoast";
 import Error from '../img/octagone-x-mark.svg';
 import { markupGallery } from "./render-functions";
+import axios from 'axios';
 
-
-export const fetchImages = (question) => {
+export const fetchImages = async (request, page) => {
   const SOURCE_URL = 'https://pixabay.com/api/';
   const KEY = '10296847-2cb755935dd8ca79d5cc29426';
   const KEY_STRING = `?key=${KEY}`;
-  const QUESTION = question;
-  const FETCH_URL = `${SOURCE_URL}${KEY_STRING}&q=${QUESTION}&image_type=photo&orientation=horizontal&safesearch=true`;
+  const QUESTION = request;
 
-  fetch(FETCH_URL)
+  await axios.get(`${SOURCE_URL}${KEY_STRING}&q=${QUESTION}`, {
+    params: {
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: 'true',
+      page: page,
+      per_page: 15,
+    },
+  })
     .then((response) => {
-      if (!response.ok) {
-        throw new Error(response.status);
-      }
-
-      return response.json();
-    })
-    .then((data) => {
-      markupGallery(data);
+      markupGallery(response.data, request, page);
     })
     .catch((error) => iziToast.error({
       class: 'popup-message',
@@ -32,5 +32,4 @@ export const fetchImages = (question) => {
       timeout: 3000,
       message: `${error}`,
     }));
-
 }

@@ -14,7 +14,6 @@ const lightbox = new SimpleLightbox('.gallery a', {
 
 const windowScrollHandler = () => {
   const itemHeight = document.querySelector('.gallery__list').firstElementChild.getBoundingClientRect().height;
-  let posTop = window.scrollY;
 
   window.scrollBy({
     top: itemHeight * 2 + 48,
@@ -55,8 +54,6 @@ const initGalleryItems = (total, request, page) => {
   const items = [...document.querySelectorAll('.gallery__item')];
   const trigger = document.querySelector('.gallery__action');
   const parent = document.querySelector('.gallery');
-
-  console.log(total)
 
   if (!items.length || trigger) {
     return;
